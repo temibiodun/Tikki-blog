@@ -10,9 +10,9 @@ const session = require('express-session');
 
 const MongoStore = require('connect-mongo');
 
-const connectDB = require('./src/server/config/db');
+const connectDB = require('./server/config/db');
 
-const { isActiveRoute } = require('./src/server/helpers/routeHelpers');
+const { isActiveRoute } = require('./server/helpers/routeHelpers');
 
 
 const app = express();
@@ -49,8 +49,8 @@ app.locals.isActiveRoute = isActiveRoute;
 
 
 
-app.use('/', require('./src/server/routes/main'));
-app.use('/', require('./src/server/routes/admin'));
+app.use('/', require('./server/routes/main'));
+app.use('/', require('./server/routes/admin'));
 
 
 
