@@ -5,7 +5,7 @@ const { title } = require('process');
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
+const middleware = require('../middleware/users.middleware');
 const adminLayout = ('../views/layouts/admin');
 
  const jwtSecret = process.env.JWT_SECRET;
@@ -29,6 +29,49 @@ const adminLayout = ('../views/layouts/admin');
       res.status(401).json( { message: 'Unauthorized'} );
     }
   }
+
+  const createBlog = async (req, res) => {
+    try {
+      const {
+        title,
+        description,
+        tag,
+        author,
+        timestamp,
+        state,
+        read_count,
+        reading_time,
+        body,
+      } = req.body;
+      const user_id = req.user_id;
+
+      const existingBlog = await blogModel.findOne({
+        title: title,
+        description: description,
+        tag: tag,
+        author: author,
+        state: state,
+        user_id: user_id,
+        body: body,
+      });
+  
+      
+      const blog = await blogModel.create({
+        title: title,
+        description: description,
+        tag: tag,
+        author: author,
+        state: state,
+        user_id: user_id,
+        body: body,
+      });
+  
+      res.status(302).redirect("/dashboard");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  
 
 
 
@@ -113,6 +156,7 @@ router.get('/add-post', authMiddleware,  async (req, res) => {
         const locals = {
             title: "Add Post",
             description: "Simple Blog created with NodeJS, express and mongoDB."
+            
         }
 
         const data = await post.find();
@@ -271,6 +315,49 @@ router.get('/logout', (req, res) => {
     // res.json({ message: 'Logged out successfully' });
     res.redirect('/')
 });
+
+// //user login
+
+// router.get('/login', async(req,res)=>{
+//     try {
+//         const locals = {
+//             title: "login",
+//             description: "Simple Blog created with NodeJS, express and mongoDB."
+//         }
+//       res.render('user/login', { locals, layout: adminLayout });
+//     } catch (error) {
+//         console.log(error);
+        
+//     }
+// } );
+
+// async function validateUserLogin(username, password) {
+//     try {
+//         const user = await User.findOne({ username }).exec();
+//         if (!user || !await bcrypt.compare(password, user.password)) {
+//           throw new Error("Invalid credentials");
+//         }
+//         return user;
+//       } catch (err) {
+//         throw new Error("Invalid credentials");
+//       }
+//   };
+  
+// router.post("/login", async (req, res) => {
+//     const { username, password } = req.body;
+    
+//     let token;
+//     try{
+//         const user = await validateUserLogin(username, password);
+//         token = jwt.sign({ userId: user._id }, jwtSecret);
+//     }catch(e){
+//         return res.status(401).json({ message: "Invalid credentials" });
+//     }
+
+//     //res.cookie("token", token, { httpOnly: true });
+//     res.setHeader("Set-Cookie", `token=${token}; HttpOnly`);
+//     res.json({ token, userId: user._id });
+// });
 
 
 

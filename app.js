@@ -9,6 +9,7 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 
 const MongoStore = require('connect-mongo');
+const winston = require('winston');
 
 const connectDB = require('./server/config/db');
 
@@ -49,12 +50,26 @@ app.locals.isActiveRoute = isActiveRoute;
 
 
 
+
 app.use('/', require('./server/routes/main'));
 app.use('/', require('./server/routes/admin'));
 
 
+//   // Increment the read_count by 1
+//   blog.read_count = parseInt(blog.read_count) + 1;
+//   await blog.save();
+// Error Handling
+app.use((req, res, next) => {
+    logger.info(`${req.method} ${req.originalUrl} ${req.ip}`);
+    next();
+  });
 
 
+  app.use((err, req, res, next) => {
+    logger.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+    // Handle errors and send a response
+    res.status(err.status || 500).send(err.message || 'Internal Server Error');
+  });
 
  
 
